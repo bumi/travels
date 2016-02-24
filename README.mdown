@@ -1,0 +1,43 @@
+# bumi/travels
+
+my location log stored in git commits. 
+
+## Development
+
+### Get latest location:
+
+```javascript
+$.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
+  for(var i=0; i < commits.length; i++) {
+    try {
+      var c = commits[i].commit;
+      var commitMessage = c.message.split("\n");
+      var data = JSON.parse(commitMessage[commitMessage.length-1]);
+      var area = data.city || data.state || 'somewhere';
+      $('.current-location').html(area + ' in ' + data.country);
+      $('.location').show();
+      return true;
+    } catch(e) {
+    } 
+  };
+});
+```
+
+### Get list of locations:
+
+```javascript
+$.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
+  commits.forEach(function(commit) {
+    try {
+      var c = commit.commit;
+      var commitMessage = c.message.split("\n");
+      var data = JSON.parse(commitMessage[commitMessage.length-1]);
+      var area = data.city || data.state || 'somewhere';
+      $('.location-list').append('<li>' + area + ' in ' + data.country + '</li>');
+      $('.location').show();
+      return true;
+    } catch(e) {
+    } 
+  });
+});
+```
