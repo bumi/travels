@@ -40,8 +40,9 @@ $.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
                 
             } 
         };
-    });
-    ```
+});
+```
+
 ### Get latest location:
 
 ```javascript
