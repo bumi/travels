@@ -2,6 +2,8 @@
 
 my location log stored in git commits. 
 
+Got a recommendation for a place I should visit? Please create an [issue](https://github.com/bumi/travels/issues/new).
+
 ## Development
 
 ### All in one: 
