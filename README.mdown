@@ -2,7 +2,50 @@
 
 my location log stored in git commits. 
 
+Got a recommendation for a place I should visit? Please create an [issue](https://github.com/bumi/travels/issues/new).
+
 ## Development
+
+### All in one: 
+adds location entries to an `ul.location-list`, fills `.current-location` and `.next-locaton`
+
+```javascript
+
+  $.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
+    var max = commits.length > 11 ? 11 : commits.length;
+    var future = [];
+    var past = [];
+    $('.location-list li').remove();
+    for(var i=0; i < max; i++) {
+      try {
+        var c = commits[i].commit;
+        var commitMessage = c.message.split("\n");
+        var data = JSON.parse(commitMessage[commitMessage.length-1]);
+        var arrival = new Date(c.author.date);
+        var area = data.city || data.state || 'somewhere';
+
+        var message = area + ', ' + data.country;
+        if(arrival > new Date()) {
+          $('.next-location').html('Next: ' + message + ' (' + arrival.toDateString() + ')'); // assumin the last commit in the future is the next stop. which is wrong, needs to get smarter and calculate the nearest in the future
+          $('.location-list').append('<li class="future">' + message + ' (' + arrival.toDateString() + ')</li>');
+          future.push(c);
+        } else {
+          var cssClass = "past"; //default
+          if(past.length === 0) { 
+            $('.current-location').html(message); // assuming the first in the past is the current location
+            cssClass = "current";
+          }
+          $('.location-list').append('<li class="' + cssClass +'">' + message + '</li>');
+          past.push(c);
+        }
+
+        $('.location').show();
+      } catch(e) {
+      } 
+    };
+  });
+
+```
 
 ### Get latest location:
 
