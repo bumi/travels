@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>Where am I? - maybe :)</title>
+
+<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+<style type="text/css">
+  body {
+    text-align: center;
+  }
+  ul {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    list-style: none;
+  }
+  li {
+    margin: 10px 0px;
+  }    
+  li.past {
+    text-decoration: line-through;
+    color: #ccc;
+  }
+  li.future {
+    color: #aaa;
+  }
+</style>
+</head>
+<body>
+<h1>Where am <a href="http://michaelbumann.com">I</a>?</h1>
+<p class="meet">
+  let's meet: <a href="mailto:hello@michaelbumann.com">hello@michaelbumann.com</a>
+</p>
+<ul class="location-list">
+    <li>loading...</li>
+</ul>
+<p>
+  have a look at my <a href="http://michaelbumann.com">blog</a> and my <a href="http://flickr.com/bumi">flickr stream</a>
+</p>
+
+<script type="text/javascript">
+  $.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
+    var max = commits.length > 11 ? 11 : commits.length;
+    var future = [];
+    var past = [];
+    $('.location-list li').remove();
+    for(var i=0; i < max; i++) {
+      try {
+        var c = commits[i].commit;
+        var commitMessage = c.message.split("\n");
+        var data = JSON.parse(commitMessage[commitMessage.length-1]);
+        var arrival = new Date(c.author.date);
+        var area = data.city || data.state || 'somewhere';
+
+        var message = area + ', ' + data.country;
+        if(arrival > new Date()) {
+          $('.next-location').html('Next: ' + message + ' (' + arrival.toDateString() + ')'); // assumin the last commit in the future is the next stop. which is wrong, needs to get smarter and calculate the nearest in the future
+          $('.location-list').append('<li class="future">' + message + ' (' + arrival.toDateString() + ')</li>');
+          future.push(c);
+        } else {
+          var cssClass = "past"; //default
+          if(past.length === 0) { 
+            $('.current-location').html(message); // assuming the first in the past is the current location
+            cssClass = "current";
+          }
+          $('.location-list').append('<li class="' + cssClass +'">' + message + '</li>');
+          past.push(c);
+        }
+
+        $('.location').show();
+      } catch(e) {
+      } 
+    };
+  });
+</script>
+</body>
+</html>
