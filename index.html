@@ -47,11 +47,10 @@
 
 <script type="text/javascript">
   $.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
-    var max = commits.length > 11 ? 11 : commits.length;
     var future = [];
     var past = [];
     $('.location-list li').remove();
-    for(var i=0; i < max; i++) {
+    for(var i=0; i < commits.length.; i++) {
       try {
         var c = commits[i].commit;
         var commitMessage = c.message.split("\n");
