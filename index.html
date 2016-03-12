@@ -1,11 +1,48 @@
 <html>
 <head>
+<meta charset=utf-8 />
 <title>Where am I? - maybe :)</title>
-
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+<script src='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.js'></script>
+<link href='https://api.mapbox.com/mapbox.js/v2.3.0/mapbox.css' rel='stylesheet' />
 <style type="text/css">
+  @import url(https://fonts.googleapis.com/css?family=Parisienne);
   body {
+    padding: 0;
+    margin: 0;
+    font-family: 'Parisienne', cursive;
+    font-size: 20px;
+  }
+  .leaflet-popup-content { 
+    font-family: 'Parisienne', cursive;
+    font-size: 18px;
     text-align: center;
+  }
+  .leaflet-popup-content b {
+    font-size: 20px;
+  }
+  .leaflet-popup-content-wrapper {
+    background: rgba(255, 255, 255, 0.8);
+  }
+  a, a:visited {
+    text-decoration: none;
+    color: #894522;
+  }
+  #log-wrapper {
+    width: 350px;
+    height: 100%;
+    overflow: scroll;
+    position: absolute;
+    right: 0px;
+    padding: 0;
+    margin:0;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 1;
+  }
+  #log { 
+    text-align: center;
+    padding: 15px;
   }
   ul {
     padding: 0;
@@ -30,25 +67,42 @@
     margin-top: 3px;
     color: #bbb;
   }
+  #map { 
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
 </style>
 </head>
 <body>
-<h1>Where am <a href="http://michaelbumann.com">I</a>?</h1>
-<p class="meet">
-  let's meet: <a href="mailto:hello@michaelbumann.com">hello@michaelbumann.com</a>
-</p>
-<ul class="location-list">
-    <li>loading...</li>
-</ul>
-<p>
-  have a look at my <a href="http://michaelbumann.com">blog</a> and my <a href="http://flickr.com/bumi">flickr stream</a>
-</p>
-<p class="inspiration">this page is inspired by <a href="http://where.is.bke.ro">where.is.bke.ro</a></p>
+<div id="log-wrapper">
+  <div id="log">
+    <h1>Where am <a href="http://michaelbumann.com">I</a>?</h1>
+    <p class="meet">
+      let's meet: <br>
+      <a href="mailto:hello@michaelbumann.com">hello@michaelbumann.com</a> or <a href="https://twitter.com/bumi">@bumi</a>
+    </p>
+    <ul class="location-list">
+      <li>loading...</li>
+    </ul>
+    <p>
+      have a look at my <a href="http://michaelbumann.com">blog</a> and my <a href="http://flickr.com/bumi">flickr stream</a>
+    </p>
+  </div>
+</div>
+<div id="map"></div>
 
 <script type="text/javascript">
+  var future = [];
+  var past = [];
+  var currentCity, currentState, currentCountry, currentMessage, nextCity, nextState, nextCountry, nextMessage;
+  L.mapbox.accessToken = 'pk.eyJ1IjoiYnVtaSIsImEiOiJPUFlmZXBBIn0.4k5NFJ-Jx4g-BtdGI-RDKg';
+  var map = L.mapbox.map('map', 'bumi.pd2gg851', {zoomControl: false}).setView([0,0], 2);
+
   $.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
-    var future = [];
-    var past = [];
     $('.location-list li').remove();
     for(var i=0; i < commits.length; i++) {
       try {
@@ -62,12 +116,24 @@
         if(arrival > new Date()) {
           $('.next-location').html('Next: ' + message + ' (' + arrival.toDateString() + ')'); // assumin the last commit in the future is the next stop. which is wrong, needs to get smarter and calculate the nearest in the future
           $('.location-list').append('<li class="future">' + message + ' (' + arrival.toDateString() + ')</li>');
+          if(future.length === 0) {
+            nextCity = data.city;
+            nextState = data.state;
+            nextCountry = data.country;
+            nextMessage = message;
+            loadingNextLocation(nextCity, nextState, nextCountry);
+          }
           future.push(c);
         } else {
           var cssClass = "past"; //default
           if(past.length === 0) { 
             $('.current-location').html(message); // assuming the first in the past is the current location
+            currentCity = data.city;
+            currentState = data.state;
+            currentCountry = data.country;
+            currentMessage = message;
             cssClass = "current";
+            loadCurrentLocation(currentCity, currentState, currentCountry);
           }
           $('.location-list').append('<li class="' + cssClass +'">' + message + '</li>');
           past.push(c);
@@ -78,6 +144,55 @@
       } 
     };
   });
+
+
+  function loadCurrentLocation(city, state, country) {
+    var geocodeSearch = ''; 
+    if(city) { geocodeSearch += (' ' + city) }
+    if(state) { geocodeSearch += (' ' + state) }
+    if(country) { geocodeSearch += (' ' + country) }
+    if(country == '') { return }
+    $.getJSON('https://nominatim.openstreetmap.org/search?format=json&q=' + geocodeSearch, function(data) { 
+      var result = data[0];
+      if(result) {
+        var coordinates = [result.lat, result.lon];
+        var myIcon = L.mapbox.marker.icon({'marker-size': 'medium', 'marker-symbol': 'star','marker-color': '#894522'});
+        var marker = L.marker(coordinates, {icon: myIcon, title: 'currently ' + city})
+        marker.bindPopup('Find me in: <br><b>' + currentMessage + '</b>'); 
+        marker.addTo(map);
+        
+        setTimeout(function() {
+          map.panTo(coordinates, {animate: true});
+        }, 500);
+        setTimeout(function() {
+          map.setView(coordinates, 5, {zoom: {animate: true}});
+        }, 1500);
+      }
+    });
+  }
+
+  function loadingNextLocation(city, state, country) {
+    var geocodeSearch = ''; 
+    if(city) { geocodeSearch += (' ' + city) }
+    if(state) { geocodeSearch += (' ' + state) }
+    if(country) { geocodeSearch += (' ' + country) }
+    if(country == '') { return }
+    $.getJSON('https://nominatim.openstreetmap.org/search?format=json&q=' + geocodeSearch, function(data) { 
+      var result = data[0];
+      if(result) {
+        var coordinates = [result.lat, result.lon];
+        var myIcon = L.mapbox.marker.icon({'marker-size': 'small', 'marker-symbol': 'star','marker-color': '#666'});
+        var marker = L.marker(coordinates, {icon: myIcon, title: 'Next stop ' + city})
+        marker.bindPopup('Next stop: <br><b>' + nextMessage + '</b>');
+    
+
+        marker.addTo(map);
+      }
+    });
+  }
+
+
+
 </script>
 </body>
 </html>
