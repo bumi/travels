@@ -1,6 +1,6 @@
 # bumi/travels
 
-my location log stored in git commits. 
+my location log stored in [git commits](https://github.com/bumi/travels/commits/locations). 
 
 Got a recommendation for a place I should visit? Please create an [issue](https://github.com/bumi/travels/issues/new).
 
@@ -11,7 +11,7 @@ adds location entries to an `ul.location-list`, fills `.current-location` and `.
 
 ```javascript
 
-  $.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
+  $.get('https://api.github.com/repos/bumi/travels/commits?sha=locations', function(commits) {
     var max = commits.length > 11 ? 11 : commits.length;
     var future = [];
     var past = [];
@@ -50,7 +50,7 @@ adds location entries to an `ul.location-list`, fills `.current-location` and `.
 ### Get latest location:
 
 ```javascript
-$.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
+$.get('https://api.github.com/repos/bumi/travels/commits?sha=locations', function(commits) {
   for(var i=0; i < commits.length; i++) {
     try {
       var c = commits[i].commit;
@@ -69,7 +69,7 @@ $.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
 ### Get list of locations:
 
 ```javascript
-$.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
+$.get('https://api.github.com/repos/bumi/travels/commits?sha=locations', function(commits) {
   commits.forEach(function(commit) {
     try {
       var c = commit.commit;
