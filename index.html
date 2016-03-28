@@ -102,7 +102,7 @@
   L.mapbox.accessToken = 'pk.eyJ1IjoiYnVtaSIsImEiOiJPUFlmZXBBIn0.4k5NFJ-Jx4g-BtdGI-RDKg';
   var map = L.mapbox.map('map', 'bumi.pd2gg851', {zoomControl: false}).setView([0,0], 2);
 
-  $.get('https://api.github.com/repos/bumi/travels/commits', function(commits) {
+  $.get('https://api.github.com/repos/bumi/travels/commits?sha=locations', function(commits) {
     $('.location-list li').remove();
     for(var i=0; i < commits.length; i++) {
       try {
