@@ -1,6 +1,6 @@
-# bumi/travels
+# [where.is.michaelbumann.com](http://where.is.michaelbumann.com)
 
-my location log stored in [git commits](https://github.com/bumi/travels/commits/locations). 
+my location log stored in [git commits](https://github.com/bumi/travels/commits/locations) (in the locations branch). Have a look at [where.is.michaelbumann.com](http://where.is.michaelbumann.com) for a nice map and list of recent places.
 
 Got a recommendation for a place I should visit? Please create an [issue](https://github.com/bumi/travels/issues/new).
 
