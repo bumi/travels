@@ -149,7 +149,7 @@
   function loadCurrentLocation(city, state, country) {
     var geocodeSearch = ''; 
     if(city) { geocodeSearch += (' ' + city) }
-    if(state) { geocodeSearch += (' ' + state) }
+    if(geocodeSearch === '' && state) { geocodeSearch += (' ' + state) } // we only use the state if we do not have a city. city and country should be enough. in fact it seems to work better.
     if(country) { geocodeSearch += (' ' + country) }
     if(country == '') { return }
     $.getJSON('https://nominatim.openstreetmap.org/search?format=json&q=' + geocodeSearch, function(data) { 
@@ -174,7 +174,7 @@
   function loadingNextLocation(city, state, country) {
     var geocodeSearch = ''; 
     if(city) { geocodeSearch += (' ' + city) }
-    if(state) { geocodeSearch += (' ' + state) }
+    if(geocodeSearch === '' && state) { geocodeSearch += (' ' + state) } // we only use the state if we do not have a city. city and country should be enough. in fact it seems to work better.
     if(country) { geocodeSearch += (' ' + country) }
     if(country == '') { return }
     $.getJSON('https://nominatim.openstreetmap.org/search?format=json&q=' + geocodeSearch, function(data) { 
