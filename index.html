@@ -30,7 +30,7 @@
     color: #894522;
   }
   #log-wrapper {
-    width: 350px;
+    width: 400px;
     height: 100%;
     overflow: scroll;
     position: absolute;
@@ -61,6 +61,10 @@
   }
   li.future {
     color: #aaa;
+    font-size: 22px;
+  }
+  li.future .date {
+    font-size: 14px;
   }
   .inspiration {
     font-size: 12px;
@@ -115,14 +119,14 @@
         var message = area + ', ' + data.country;
         if(arrival > new Date()) {
           $('.next-location').html('Next: ' + message + ' (' + arrival.toDateString() + ')'); // assumin the last commit in the future is the next stop. which is wrong, needs to get smarter and calculate the nearest in the future
-          $('.location-list').append('<li class="future">' + message + ' (' + arrival.toDateString() + ')</li>');
+          $('.location-list').append('<li class="future">' + message + ' <span class="date">(' + arrival.toDateString() + ')<span></li>');
           if(future.length === 0) {
             nextCity = data.city;
             nextState = data.state;
             nextCountry = data.country;
             nextMessage = message;
-            loadingNextLocation(nextCity, nextState, nextCountry);
           }
+          loadingNextLocation(data.city, data.state, data.country, message);
           future.push(c);
         } else {
           var cssClass = "past"; //default
@@ -133,7 +137,7 @@
             currentCountry = data.country;
             currentMessage = message;
             cssClass = "current";
-            loadCurrentLocation(currentCity, currentState, currentCountry);
+            loadCurrentLocation(currentCity, currentState, currentCountry, message);
           }
           $('.location-list').append('<li class="' + cssClass +'">' + message + '</li>');
           past.push(c);
@@ -146,7 +150,7 @@
   });
 
 
-  function loadCurrentLocation(city, state, country) {
+  function loadCurrentLocation(city, state, country, message) {
     var geocodeSearch = ''; 
     if(city) { geocodeSearch += (' ' + city) }
     if(geocodeSearch === '' && state) { geocodeSearch += (' ' + state) } // we only use the state if we do not have a city. city and country should be enough. in fact it seems to work better.
@@ -158,7 +162,7 @@
         var coordinates = [result.lat, result.lon];
         var myIcon = L.mapbox.marker.icon({'marker-size': 'medium', 'marker-symbol': 'star','marker-color': '#894522'});
         var marker = L.marker(coordinates, {icon: myIcon, title: 'currently ' + city})
-        marker.bindPopup('Find me in: <br><b>' + currentMessage + '</b>'); 
+        marker.bindPopup('Find me in: <br><b>' + message + '</b>'); 
         marker.addTo(map);
         
         setTimeout(function() {
@@ -171,7 +175,7 @@
     });
   }
 
-  function loadingNextLocation(city, state, country) {
+  function loadingNextLocation(city, state, country, message) {
     var geocodeSearch = ''; 
     if(city) { geocodeSearch += (' ' + city) }
     if(geocodeSearch === '' && state) { geocodeSearch += (' ' + state) } // we only use the state if we do not have a city. city and country should be enough. in fact it seems to work better.
@@ -183,7 +187,7 @@
         var coordinates = [result.lat, result.lon];
         var myIcon = L.mapbox.marker.icon({'marker-size': 'small', 'marker-symbol': 'star','marker-color': '#666'});
         var marker = L.marker(coordinates, {icon: myIcon, title: 'Next stop ' + city})
-        marker.bindPopup('Next stop: <br><b>' + nextMessage + '</b>');
+        marker.bindPopup('Next stop: <br><b>' + message + '</b>');
     
 
         marker.addTo(map);
