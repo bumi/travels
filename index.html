@@ -108,6 +108,13 @@
 
   $.get('https://api.github.com/repos/bumi/travels/commits?sha=locations', function(commits) {
     $('.location-list li').remove();
+    commits = commits.sort(function(c1, c2) { 
+      var d1 = new Date(c1.commit.author.date);
+      var d2 = new Date(c2.commit.author.date); 
+      if(d1 < d2) { return 1; }
+      if(d1 > d2) { return -1; }
+      return 0;
+    });
     for(var i=0; i < commits.length; i++) {
       try {
         var c = commits[i].commit;
